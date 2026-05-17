@@ -7,3 +7,6 @@ pool:
 steps:
 - script: dotnet build
   displayName: 'Build the project'
+
+- script: docker build -t demodevops:$(Build.BuildId) .
+  displayName: 'Build Docker image'
