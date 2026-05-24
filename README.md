@@ -4,7 +4,7 @@ Proyecto de ejemplo para la práctica de Integración Continua (CI) en el diplom
 
 ## Descripción
 
-Aplicación de consola en .NET que demuestra el uso de Azure DevOps Pipelines para la integración continua.
+API REST en .NET con soporte de Swagger, Entity Framework Core y SQL Server (vía Docker), que demuestra el uso de Azure DevOps Pipelines para la integración continua.
 
 ## Estructura del proyecto
 
@@ -12,21 +12,47 @@ Aplicación de consola en .NET que demuestra el uso de Azure DevOps Pipelines pa
 - `Program.cs` - Código fuente de la aplicación
 - `azure-pipelines.yml` - Configuración del pipeline de Azure DevOps
 
-## Ejecución local
+## Pasos para levantarlo en otra computadora (Desarrollo Local)
 
+Para clonar y ejecutar este proyecto de forma local, debes tener instalados **.NET SDK** y **Docker**. Sigue esta secuencia exacta:
+
+### 1. Levantar la Base de Datos
+El proyecto tiene un archivo `docker-compose.yaml` listo para desplegar SQL Server con las credenciales correctas.
 ```bash
-dotnet build
-dotnet run
+docker-compose up -d
 ```
 
-## Ejecución con Docker
+### 2. Configurar la Cadena de Conexión (User Secrets)
+Por seguridad, la contraseña de la base de datos no está en el código. Debes configurar tu cadena de conexión de forma local en tu máquina ejecutando este comando en la terminal (en la raíz del proyecto):
+```bash
+dotnet user-secrets set "ConnectionStrings:ConexionSql" "Server=127.0.0.1,1433;Database=DemoDevOpsDb;User ID=sa;Password=MyStrongPass123;MultipleActiveResultSets=true;TrustServerCertificate=true"
+```
+
+### 3. Aplicar las Migraciones (Entity Framework)
+Genera la base de datos y sus tablas mediante las herramientas de EF Core:
+```bash
+dotnet ef database update
+```
+*(Nota: Si no existe la carpeta `Migrations` en el repositorio, primero usa `dotnet ef migrations add Initial`).*
+
+### 4. Ejecutar y testear la API
+Levanta el servidor web:
+```bash
+dotnet run
+```
+Abre en tu navegador la ruta de Swagger (fíjate en el puerto que asigne tu consola). Ejemplo:
+```text
+http://localhost:5035/swagger
+```
+
+## Ejecución de la Imagen Docker (Solo App)
 
 ```bash
 docker build -t demodevops:local .
 docker run --rm demodevops:local
 ```
 
-El `Dockerfile` usa una etapa de build con el SDK de .NET y una etapa de runtime con la imagen liviana necesaria para ejecutar la aplicación publicada.
+El `Dockerfile` usa una etapa de build con el SDK de .NET y una etapa de runtime con la imagen liviana necesaria para ejecutar la API.
 
 ## Pipeline CI/CD
 
