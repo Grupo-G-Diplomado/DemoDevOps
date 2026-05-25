@@ -4,40 +4,49 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
-jobs:
-- job: Build
-  displayName: 'Build Project'
-  steps:
-  - task: DotNetCoreCLI@2
-    displayName: 'Restore dependencies'
-    inputs:
-      command: 'restore'
-      projects: '**/*.csproj'
+stages:
+- stage: BuildStage
+  displayName: 'Compilación'
+  jobs:
+  - job: Build
+    displayName: 'Build Project'
+    steps:
+    - task: DotNetCoreCLI@2
+      displayName: 'Restore dependencies'
+      inputs:
+        command: 'restore'
+        projects: '**/*.csproj'
 
-  - task: DotNetCoreCLI@2
-    displayName: 'Build projects'
-    inputs:
-      command: 'build'
-      projects: '**/*.csproj'
-      arguments: '--configuration Release --no-restore'
+    - task: DotNetCoreCLI@2
+      displayName: 'Build projects'
+      inputs:
+        command: 'build'
+        projects: '**/*.csproj'
+        arguments: '--configuration Release --no-restore'
 
-- job: Test
-  displayName: 'Unit Tests'
-  dependsOn: Build
+- stage: TestStage
+  displayName: 'Pruebas Unitarias'
+  dependsOn: BuildStage
   condition: succeeded()
-  steps:
-  - task: DotNetCoreCLI@2
-    displayName: 'Run unit tests'
-    inputs:
-      command: 'test'
-      projects: 'DemoDevOps.Tests/DemoDevOps.Tests.csproj'
-      arguments: '--configuration Release --logger trx'
-      publishTestResults: true
+  jobs:
+  - job: Test
+    displayName: 'Unit Tests'
+    steps:
+    - task: DotNetCoreCLI@2
+      displayName: 'Run unit tests'
+      inputs:
+        command: 'test'
+        projects: 'DemoDevOps.Tests/DemoDevOps.Tests.csproj'
+        arguments: '--configuration Release --logger trx'
+        publishTestResults: true
 
-- job: DockerBuild
-  displayName: 'Build Docker Image'
-  dependsOn: Test
+- stage: Packaging
+  displayName: 'Empaquetado'
+  dependsOn: TestStage
   condition: succeeded()
-  steps:
-  - script: docker build -t demodevops:$(Build.BuildId) .
-    displayName: 'Build Docker image'
+  jobs:
+  - job: DockerBuild
+    displayName: 'Build Docker Image'
+    steps:
+    - script: docker build -t demodevops:$(Build.BuildId) .
+      displayName: 'Build Docker image'
