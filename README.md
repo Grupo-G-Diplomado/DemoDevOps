@@ -57,6 +57,7 @@ El `Dockerfile` usa una etapa de build con el SDK de .NET y una etapa de runtime
 ## Pipeline CI/CD
 
 El pipeline se ejecuta automáticamente en cada push a la rama `main`, ejecutando el comando `dotnet build` para compilar el proyecto y `docker build` para validar la construcción de la imagen.
+## pruebas unitarias 1 correcto sin detalles .
 
 ## Grupo de trabajo - G
 
