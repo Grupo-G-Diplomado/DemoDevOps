@@ -26,4 +26,11 @@
     <Folder Include="Mapping\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="DemoDevOps.Tests\**" />
+    <Content Remove="DemoDevOps.Tests\**" />
+    <EmbeddedResource Remove="DemoDevOps.Tests\**" />
+    <None Remove="DemoDevOps.Tests\**" />
+  </ItemGroup>
+
 </Project>
