@@ -10,5 +10,19 @@ services:
       MSSQL_PID: "Developer"
     volumes:
       - sqlserverdata:/var/opt/mssql
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: demodevops_api
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__ConexionSql=Server=sql;Database=DemoDevOpsDb;User Id=sa;Password=MyStrongPass123;TrustServerCertificate=True;MultipleActiveResultSets=true;
+    depends_on:
+      - sql
+
 volumes:
   sqlserverdata:
