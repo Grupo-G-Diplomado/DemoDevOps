@@ -30,3 +30,6 @@ packages/
 
 # Azure DevOps
 *.logs
+
+# Archivos de variables de entorno (Secretos)
+.env

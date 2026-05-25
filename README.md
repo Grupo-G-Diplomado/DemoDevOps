@@ -14,45 +14,33 @@ API REST en .NET con soporte de Swagger, Entity Framework Core y SQL Server (ví
 
 ## Pasos para levantarlo en otra computadora (Desarrollo Local)
 
-Para clonar y ejecutar este proyecto de forma local, debes tener instalados **.NET SDK** y **Docker**. Sigue esta secuencia exacta:
+Para clonar y ejecutar este proyecto de forma local de manera completamente automatizada, debes tener instalado **Docker** y **Docker Compose**. Sigue esta secuencia:
 
-### 1. Levantar la Base de Datos
-El proyecto tiene un archivo `docker-compose.yaml` listo para desplegar SQL Server con las credenciales correctas.
+### 1. Configurar las variables de entorno (Secretos)
+Por seguridad, las credenciales de la base de datos no se suben al repositorio. Antes de iniciar la aplicación, debes crear tu archivo local de configuración:
+
+1. Localiza el archivo `.env.example` en la raíz del proyecto.
+2. Haz una copia del mismo y nómbralo exactamente `.env` (quitándole el `.example`).
+3. (Opcional) Abre ese nuevo archivo `.env` para cambiar la contraseña si así lo deseas.
+
+### 2. Levantar toda la infraestructura
+El proyecto está configurado para levantar la Base de Datos, conectarla y ejecutar las migraciones iniciales automáticamente. En la terminal escribe:
+
 ```bash
-docker-compose up -d
+docker compose up -d --build
 ```
 
-### 2. Configurar la Cadena de Conexión (User Secrets)
-Por seguridad, la contraseña de la base de datos no está en el código. Debes configurar tu cadena de conexión de forma local en tu máquina ejecutando este comando en la terminal (en la raíz del proyecto):
-```bash
-dotnet user-secrets set "ConnectionStrings:ConexionSql" "Server=127.0.0.1,1433;Database=DemoDevOpsDb;User ID=sa;Password=MyStrongPass123;MultipleActiveResultSets=true;TrustServerCertificate=true"
-```
-
-### 3. Aplicar las Migraciones (Entity Framework)
-Genera la base de datos y sus tablas mediante las herramientas de EF Core:
-```bash
-dotnet ef database update
-```
-*(Nota: Si no existe la carpeta `Migrations` en el repositorio, primero usa `dotnet ef migrations add Initial`).*
-
-### 4. Ejecutar y testear la API
-Levanta el servidor web:
-```bash
-dotnet run
-```
-Abre en tu navegador la ruta de Swagger (fíjate en el puerto que asigne tu consola). Ejemplo:
+### 3. Probar la API (Swagger)
+Tu API ya debe estar corriendo junto con SQL Server. Ábrela en tu navegador para ver la interfaz de Swagger:
 ```text
-http://localhost:5035/swagger
+http://localhost:8080/swagger
 ```
 
-## Ejecución de la Imagen Docker (Solo App)
-
+### 4. Pruebas Unitarias
+El proyecto cuenta con un entorno aislado (con xUnit y Moq). Para verificar que las pruebas pasan, puedes ejecutar localmente:
 ```bash
-docker build -t demodevops:local .
-docker run --rm demodevops:local
+dotnet test DemoDevOps.Tests
 ```
-
-El `Dockerfile` usa una etapa de build con el SDK de .NET y una etapa de runtime con la imagen liviana necesaria para ejecutar la API.
 
 ## Pipeline CI/CD
 
